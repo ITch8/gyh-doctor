@@ -1,0 +1,471 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>主页</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="../css/common.css" />
+		<link rel="stylesheet" href="../css/imagePreview.css" />
+		<link rel="stylesheet" type="text/css" href="../css/pullRefresh.css" />
+		<link rel="stylesheet" href="../css/main.css" />
+	</head>
+	<body>
+		<header class="header2 mui-bar mui-bar-nav" style="padding: 0px;">
+			<span id="kefu" class="mui-pull-left"><span class="myicon kefu-icon"></span></span>
+			<div id="newContactNum" class="mui-badge mui-badge-danger newContactNum m-undisplay">0</div>
+			<h1 id='title' class="mui-title">首頁</h1>
+			<span id="msg" class="mui-pull-right">
+				<span class="myicon info-icon"></span>
+			<span id="newInfoNum" class="mui-badge mui-badge-danger newInfoNum m-undisplay">0</span></span>
+		</header>
+		<div id="mui-scroll-wrapper" class="mui-content mui-fullscreen mui-scroll-wrapper">
+			<div id="cases" class="mui-scroll">
+				<div id="slider" class="mui-slider">
+					<div id="loop" class="mui-slider-group mui-slider-loop">
+					</div>
+					<div id="indicator" class="mui-slider-indicator"></div>
+				</div>
+				<p class="undo">排隊管理<button  id="next" class="mui-pull-right mui-btn mui-btn">保存</button></p>
+				<div class="line-manage">
+					<h5 class="mui-content-padded">當前排隊人數</h5>
+					<div class="mui-numbox" data-numbox-min='1'>
+						<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
+						<input id="lineCount" class="mui-input-numbox" type="number" />
+						<button class="mui-btn mui-btn-numbox-plus" type="button">+</button>
+					</div>
+					<h5 class="mui-content-padded">人均排隊時間(分鐘)</h5>
+					<div class="mui-numbox" data-numbox-step='5' data-numbox-min='0'>
+						<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
+						<input id="estimatedTime" class="mui-input-numbox" type="number"/>
+						<button class="mui-btn mui-btn-numbox-plus" type="button">+</button>
+					</div>
+				</div>
+				<p class="undo">待處理問題</p>
+				<ul id="order-list" class="mui-table-view"></ul>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/mui.min.js"></script>
+	<script type="text/javascript" src="../js/mui.zoom.js"></script>
+	<script type="text/javascript" src="../js/mui.previewimage.js"></script>
+	<script type="text/javascript" src="../js/mui.pullToRefresh.min.js"></script>
+	<script type="text/javascript" src="../js/mui.pullToRefresh.material.min.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+	<script type="text/javascript" src="../js/jscomon.js"></script>
+	<script type="text/javascript">
+		var list = document.getElementById('order-list'),
+			pdata = {};
+		var count = null,allNumber = 0,
+			bannerList = null,
+			_pull = null,typeHtml = null;
+		var hasNewInfo = false,hasRead = false,
+			newNum = document.getElementById("newInfoNum"),
+			newContactNum = document.getElementById("newContactNum"),
+			web = null;
+		var slider = document.getElementById("slider"),
+			loopObj = document.getElementById("loop"),
+			indicatorObj = document.getElementById("indicator");
+		var lineCountObj = document.getElementById("lineCount"),estimatedTimeObj = document.getElementById("estimatedTime");
+		(function(_, doc, u, w) {
+			_.init({
+				swipeBack: false,
+				gestureConfig: {
+					doubletap: true
+				}
+			}), _(".mui-scroll-wrapper").scroll(), _.previewImage();
+			_(doc).on("doubletap", ".mui-title", function() {
+				_(".mui-scroll-wrapper").scroll().scrollTo(0, 0)
+			})
+			_.plusReady(function() {
+				var domItem = null,
+					imgServer = null;
+				pdata.limit = 5;
+				pdata.offset = 0;
+				//先检测一下网络
+				checkNet();
+				//检测网络变化
+				document.addEventListener("netchange", function() {
+					checkNet();
+				});
+				if(w.getUser()) {
+					loadList(w.getUser()); //加载数据
+				}
+				pdata.privateToken = w.getUser();
+				_pull = _('#cases').pullToRefresh({
+					down: {
+						callback: function() {
+							//请求数据
+							u.mypost("doctor_center/index", pdata, false, function(data) {
+								var order = data.data.order,
+									imgs = null,
+									imgHtml = null,
+									statusClass = null;
+								imgServer = data.data.imgServer;
+								count = data.data.count || 0;
+								var n = Number(count) - Number(localStorage.getItem("allNewsNum") || 0);
+								newNum.innerHTML = n>99?"99+":n;
+								if(n<=0){
+									newNum.className = "mui-badge mui-badge-danger newInfoNum m-undisplay";
+								}else{
+									newNum.className = "mui-badge mui-badge-danger newInfoNum";
+								}
+								bannerList = data.data.banner;
+								if(bannerList && bannerList.length > 0) {
+									u.emptyHtml(loopObj) //清空轮播图数据
+									u.emptyHtml(indicatorObj);
+									var len = bannerList.length;
+									var indicatorItem = null;
+									loopObj.innerHTML = "<div class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[len - 1].img + "'></div>";
+									mui.each(bannerList, function(i, o) {
+										indicatorItem = document.createElement("div")
+										loopObj.innerHTML += "<div id='" + o.nid + "' class='mui-slider-item'> <img src='" + imgServer + o.img + "'></div>";
+										if(0 == i) {
+											indicatorItem.className = "mui-indicator mui-active";
+										} else {
+											indicatorItem.className = "mui-indicator";
+										}
+										indicatorObj.appendChild(indicatorItem);
+									})
+									loopObj.innerHTML += "<div class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[0].img + "'></div>";
+								}
+								var bodyWidth = document.body.clientWidth;
+								document.getElementById("slider").querySelector("img").setAttribute("height",bodyWidth && bodyWidth/2);
+								//待處理問題列表
+								if(order && order.length > 0) {
+									u.emptyHtml(list);
+									_.each(order, function(i, o) {
+										var a = i;
+										domItem = doc.createElement("li");
+										domItem.className = "mui-table-view-cell case-list";
+										domItem.id = o.id || o.appointId;
+										if(o.type == "預約"){
+											statusClass = "book";
+											typeHtml = "<div class='case-detail mui-row'>" +
+												"<label class='mui-col-xs-3'>預約人:</label><span class='mui-col-xs-9'>" + (o.contacts || '-') + "</span>" +
+												"<label class='mui-col-xs-3'>手機號:</label><span class='mui-col-xs-9'>" + (o.appointTel || '-') + "</span>" +
+												"<label class='mui-col-xs-3'>預約時間:</label><span class='mui-col-xs-9'>" +(o.appointDate || '-') + "</span>" +
+												"</div>";
+										} else if(o.type == "留言問診") {
+											imgHtml = "";
+											statusClass = ("未通過" == o.state ? "ask unpass" : "ask");
+											imgs = o.img;
+											if(imgs) {
+												if(imgs instanceof Array) {
+													for(var i = 0; i < imgs.length; i++) {
+														imgHtml += "<img data-preview-src='' data-preview-group='" + (a + 1) + "' src='" + imgServer + imgs[i] + "' />";
+													}
+												} else {
+													imgs.img0 ? imgHtml += "<img data-preview-src='' data-preview-group='" + (a + 1) + "' src='" + imgServer + imgs.img0 + "' />" : imgHtml += "";
+													imgs.img1 ? imgHtml += "<img data-preview-src='' data-preview-group='" + (a + 1) + "' src='" + imgServer + imgs.img1 + "' />" : imgHtml += "";
+													imgs.img2 ? imgHtml += "<img data-preview-src='' data-preview-group='" + (a + 1) + "' src='" + imgServer + imgs.img2 + "' />" : imgHtml += "";
+												}
+											}
+											typeHtml = "<div class='case-detail mui-row'>" +
+												"<label class='mui-col-xs-3'>就診人:</label><span class='mui-col-xs-9'>" + (o.nickname || '無') + "</span>" +
+												"<label class='mui-col-xs-3'>金額:</label><span class='money mui-col-xs-9'>¥ " + (o.price || '無') + "</span>" +
+												"<label class='mui-col-xs-3'>詢問問題:</label>" +
+												"<span class='mui-col-xs-9'>" + (o.askerContent || '無') +
+												"<div class='imgs'>" + imgHtml +
+												("完成" == o.state ? "" : "<button id='" + o.id + "' type='button' class='mui-btn mui-btn-mini'>" + ("未通過" == o.state ? '重新回復' : '回復') + "</button>") +
+												"</div>" +
+												"</span>" +
+												"</div>";
+										} else if(o.type == "在線問診") {
+											statusClass = "online";
+											typeHtml = "<div class='case-detail mui-row'>" +
+												"<label class='mui-col-xs-3'>就診人:</label><span class='mui-col-xs-9'>" + (o.askNickname || '無') + "</span>" +
+												"<label class='mui-col-xs-3'>手機號:</label><span class='mui-col-xs-9'>" + (o.askTelephone || '無') + "</span>" +
+												"<label class='mui-col-xs-3'>溝通時長:</label><span class='mui-col-xs-9'>" + (o.phoneTimeLen || '無') + "分钟</span>" +
+												"<label class='mui-col-xs-3'>鉤通時間:</label><span class='mui-col-xs-9'>" + (o.callDate || '無') + "</span>" +
+												"<label class='mui-col-xs-3'>基本病情:</label>" +
+												"<span class='mui-col-xs-9'>" + (o.situation || '無') + "</span>" +
+												"<label class='mui-col-xs-3'>病情概述:</label>" +
+												"<span class='mui-col-xs-9'>" + (o.askContent || '無') + "</span>" +
+												"<label class='mui-col-xs-3'>備註:</label><span class='mui-col-xs-9'>" + (o.docRemark || '無') + "</span>" +
+												"</div>";
+										}else if(o.type == "藥品分配"){
+											statusClass = "medical";
+											typeHtml = "<div class='case-detail mui-row'>"+
+											"<label class='mui-col-xs-3'>預約人:</label><span class='mui-col-xs-9'>"+(o.appointName || '無')+"</span>"+
+												"<label class='mui-col-xs-3'>藥品名稱:</label><span class='mui-col-xs-9'>"+(o.medicineName || '無')+"</span>"+
+												"<label class='mui-col-xs-3'>聯系方式:</label><span class='mui-col-xs-9'>"+(o.appoPersonTel || '無')+"</span>"+
+												"<label class='mui-col-xs-3'>預約時間:</label><span class='mui-col-xs-9'>"+(o.appointTime || '無')+"</span>"+
+											"</div>";
+										}
+										domItem.innerHTML = "<div class='mui-row detail'>" +
+											"<span class='case-title mui-col-xs-7'>" + (o.nickname || o.appointPersonName || o.appointName) + "的" + o.type + "</span>" +
+											"<span class='case-detail-sex mui-col-xs-5'>性別:" + (o.sex || '無') + "&ensp;年齡:" + (o.age || '無') + "</span>" +
+											"</div>" + typeHtml;
+										u.addClass(domItem, statusClass);
+										list.appendChild(domItem);
+									});
+								} else {
+									list.innerHTML = nodataHtmlInfo;
+								}
+								_pull.endPullDownToRefresh(true);
+							}, function() {
+								_.toast("獲取數據異常");
+								_pull.endPullDownToRefresh(true);
+							});
+						}
+					}
+				});
+
+				//信息点击事件
+				doc.getElementById("msg").addEventListener("tap", function() {
+					hasRead = true;
+					newNum.innerHTML = "";
+					newNum.className = "mui-badge mui-badge-danger newInfoNum m-undisplay";
+					hasNewInfo = newNum.innerHTML == "" ? false : true;
+					var ex = {
+						hasNewInfo: hasNewInfo
+					}
+					var href = "../mymain/infolist.html";
+					w.openView(href, ex);
+				});
+				//进入客服页面
+				doc.getElementById("kefu").addEventListener("tap", function() {
+					newContactNum.innerHTML = "0";
+					newContactNum.className = "mui-badge mui-badge-danger newContactNum m-undisplay";
+					var href = "../mymain/contactService.html";
+					w.openView(href);
+				});
+				//留言问答回復
+				_(doc).on("tap", ".mui-btn-mini", function(e) {
+						var extras = {
+							id: this.id
+						};
+						if(this.innerHTML == '重新回復') {
+							extras.flag = 1;
+						}
+						w.openView("infoaskDetail", extras);
+						e.stopPropagation();
+					})
+					//进入留言问答页面
+				_(doc).on("tap", ".ask", function() {
+						var extras = {
+							id: this.id
+						};
+						hasClass(this, "unpass") ? extras.flag = 1 : ''; //1代表重新回答
+						w.openView("infoaskDetail", extras);
+					})
+					//进入在线咨询詳情
+				_(doc).on("tap", ".online", function() {
+						var extras = {
+							id: this.id
+						};
+						w.openView("onlineaskDetail.html", extras);
+					})
+					//进入預約詳情页面
+				_(doc).on("tap", ".book", function() {
+						var extras = {
+							id: this.id
+						};
+						w.openView("bookDetail.html", extras);
+					})
+				//进入藥品分配詳情页面
+				_(doc).on("tap", ".medical", function() {
+						var extras = {
+							appointId : this.id
+						}
+						w.openView("../myclinic/medicalDetail.html",extras);
+					})
+					//点击轮播图图片进入消息詳情页面
+				_("#slider").on("tap", ".mui-slider-item", function() {
+					var extras = {
+						nid: this.id,
+						fromMain: true
+					};
+					w.openView("../mynews/newsdetail.html", extras);
+				})
+			});
+			w.doubleTapExit(); //连续两次点返回键 退出系统
+			
+			document.getElementById("next").addEventListener("tap",function(){
+				var pdata = {
+					privateToken:w.getUser(),
+					lineCount:lineCountObj.value,
+					estimatedTime:estimatedTimeObj.value
+				}
+				util.mypost("doctor_center/docLineEdit",pdata,true,function(data){
+					if(data.code == 0){
+						_.toast( data.msg || "")
+					}else if(data.code == -1){
+						util.goLogin();
+					}
+				},myerror)
+			})
+			
+		})(mui, document, util, window)
+
+		/**
+		 * @description 加载数据
+		 * */
+		function loadList() {
+			util.emptyHtml(list);
+			pdata.privateToken = window.getUser();
+			//请求数据
+			util.mypost("doctor_center/index", pdata, false, function(data) {
+				if(data.code == "500") {
+					mui.toast("請重新登錄");
+					window.openView("../login.html");
+					return;
+				}
+				var order = data.data.order,
+					imgs = null,
+					imgHtml = null,
+					statusClass = null;
+				imgServer = data.data.imgServer;
+				count = data.data.count;
+				//消息数量
+				var n = Number(count) - Number(localStorage.getItem("allNewsNum") || 0);
+				newNum.innerHTML = n>99?"99+":n;
+				if(n<=0){
+					newNum.className = "mui-badge mui-badge-danger newInfoNum m-undisplay";
+				}else{
+					newNum.className = "mui-badge mui-badge-danger newInfoNum";
+				}
+				bannerList = data.data.banner;
+				if(bannerList && bannerList.length > 0) {
+					var len = bannerList.length;
+					var indicatorItem = null;
+					util.emptyHtml(loopObj) //清空轮播图数据
+					util.emptyHtml(indicatorObj);
+					loopObj.innerHTML = "<div class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[len - 1].img + "'></div>";
+					mui.each(bannerList, function(i, o) {
+						indicatorItem = document.createElement("div");
+						loopObj.innerHTML += "<div id='" + o.nid + "' class='mui-slider-item'><img src='" + imgServer + o.img + "'></div>";
+						if(0 == i) {
+							indicatorItem.className = "mui-indicator mui-active";
+						} else {
+							indicatorItem.className = "mui-indicator";
+						}
+						indicatorObj.appendChild(indicatorItem);
+					})
+					loopObj.innerHTML += "<div class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[0].img + "'></div>";
+				}
+				var bodyWidth = document.body.clientWidth;
+				document.getElementById("slider").querySelector("img").setAttribute("height",bodyWidth && bodyWidth/15*7);
+				//待處理問題列表
+				if(order && order.length > 0) {
+					mui.each(order, function(i, o) {
+						var a = i;
+						domItem = document.createElement("li");
+						domItem.className = "mui-table-view-cell case-list";
+						domItem.id = o.id || o.appointId;
+						if(o.type == "預約") {
+							statusClass = "book";
+							typeHtml = "<div class='case-detail mui-row'>" +
+								"<label class='mui-col-xs-3'>預約人:</label><span class='mui-col-xs-9'>" + o.contacts + "</span>" +
+								"<label class='mui-col-xs-3'>手機號:</label><span class='mui-col-xs-9'>" + o.appointTel + "</span>" +
+								"<label class='mui-col-xs-3'>預約時間:</label><span class='mui-col-xs-9'>" + o.appointDate + "</span>" +
+								"</div>";
+						} else if(o.type == "留言問診") {
+							imgHtml = "";
+							statusClass = ("未通過" == o.state ? "ask unpass" : "ask");
+							imgs = o.img;
+							if(imgs) {
+								imgs.img0 ? imgHtml += "<img data-preview-src='' data-preview-group='" + (a + 1) + "' src='" + imgServer + imgs.img0 + "' />" : imgHtml += "";
+								imgs.img1 ? imgHtml += "<img data-preview-src='' data-preview-group='" + (a + 1) + "' src='" + imgServer + imgs.img1 + "' />" : imgHtml += "";
+								imgs.img2 ? imgHtml += "<img data-preview-src='' data-preview-group='" + (a + 1) + "' src='" + imgServer + imgs.img2 + "' />" : imgHtml += "";
+							}
+							typeHtml = "<div class='case-detail mui-row'>" +
+								"<label class='mui-col-xs-3'>就診人:</label><span class='mui-col-xs-9'>" + o.nickname + "</span>" +
+								"<label class='mui-col-xs-3'>金額:</label><span class='money mui-col-xs-9'>¥ " + o.price + "</span>" +
+								"<label class='mui-col-xs-3'>詢問問題:</label>" +
+								"<span class='mui-col-xs-9'>" + (o.askerContent || '無') +
+								"<div class='imgs'>" + imgHtml +
+								("完成" == o.state ? "" : "<button id='" + o.id + "' type='button' class='mui-btn mui-btn-mini'>" + ("未通過" == o.state ? '重新回復' : '回復') + "</button>") +
+								"</div>" +
+								"</span>" +
+								"</div>";
+						} else if(o.type == "在線問診") {
+							statusClass = "online";
+							typeHtml = "<div class='case-detail mui-row'>" +
+								"<label class='mui-col-xs-3'>就診人:</label><span class='mui-col-xs-9'>" + o.askNickname + "</span>" +
+								"<label class='mui-col-xs-3'>手機號:</label><span class='mui-col-xs-9'>" + o.askTelephone + "</span>" +
+								"<label class='mui-col-xs-3'>溝通時長:</label><span class='mui-col-xs-9'>" + o.phoneTimeLen + "分钟</span>" +
+								"<label class='mui-col-xs-3'>鉤通時間:</label><span class='mui-col-xs-9'>" + o.callDate + "</span>" +
+								"<label class='mui-col-xs-3'>基本病情:</label>" +
+								"<span class='mui-col-xs-9'>" + (o.situation || '無') + "</span>" +
+								"<label class='mui-col-xs-3'>病情概述:</label>" +
+								"<span class='mui-col-xs-9'>" + (o.askContent || '無') + "</span>" +
+								"<label class='mui-col-xs-3'>備註:</label><span class='mui-col-xs-9'>" + (o.docRemark || '無') + "</span>" +
+								"</div>";
+						}else if(o.type == "藥品分配"){
+							statusClass = "medical";
+							typeHtml = "<div class='case-detail mui-row'>"+
+							"<label class='mui-col-xs-3'>預約人:</label><span class='mui-col-xs-9'>"+(o.appointName || '無')+"</span>"+
+								"<label class='mui-col-xs-3'>藥品名稱:</label><span class='mui-col-xs-9'>"+(o.medicineName || '無')+"</span>"+
+								"<label class='mui-col-xs-3'>聯系方式:</label><span class='mui-col-xs-9'>"+(o.appoPersonTel || '無')+"</span>"+
+								"<label class='mui-col-xs-3'>預約時間:</label><span class='mui-col-xs-9'>"+(o.appointTime || '無')+"</span>"+
+							"</div>";
+						}
+						domItem.innerHTML = "<div class='mui-row detail'>" +
+							"<span class='case-title mui-col-xs-7'>" + (o.nickname || o.appointPersonName || o.appointName) + "的" + o.type + "</span>" +
+							"<span class='case-detail-sex mui-col-xs-5'>性別:" + (o.sex || '無') + "&ensp;年齡:" + (o.age || '無') + "</span>" +
+							"</div>" + typeHtml;
+						util.addClass(domItem, statusClass);
+						list.appendChild(domItem);
+					});
+				} else {
+					list.innerHTML = nodataHtmlInfo;
+				}
+				mui(slider).slider({
+					interval: 2000
+				});
+			}, myerror);
+			
+			//获取當前排隊人數和人均排队时间
+			mui.later(function(){
+				util.mypost("doctor_center/docInfo", {privateToken:window.getUser()}, false, function(data) {
+					if(data.code == 0){
+						lineCountObj.value = data.data.info[0].lineCount ||0;
+						estimatedTimeObj.value = data.data.info[0].estimatedTime || 0;
+					}else if(data.code == "500") {
+						util.goLogin();
+					}
+				}, myerror);
+			},500)
+		}
+		
+		/**
+		 * @description 提示客服消息
+		 */
+		function newContactInfo(unreadNum){
+			var num = Number(newContactNum.innerHTML || '0') || 0;
+			unreadNum?num +=unreadNum:num++;
+			newContactNum.innerHTML = (num > 99)?"99+":num;
+			newContactNum.className = "mui-badge mui-badge-danger newContactNum";
+		}
+		
+		/**
+		 * @description 获取消息数量
+		 * */
+		function getNewsNumber() {
+			pdata.privateToken = window.getUser();
+			//请求数据
+			util.mypost("doctor_center/index", pdata, false, function(data) {
+				if(data.code == "500") {
+					mui.toast("請重新登錄");
+					window.openView("../login.html");
+					return;
+				}
+				var count = data.data.count || 0;
+				//消息数量
+				var n = Number(count) - Number(localStorage.getItem("allNewsNum") || 0);
+				newNum.innerHTML = n>99?"99+":n;
+				if(n<=0){
+					newNum.className = "mui-badge mui-badge-danger newInfoNum m-undisplay";
+				}else{
+					newNum.className = "mui-badge mui-badge-danger newInfoNum";
+				}
+			}, myerror);
+		}
+	</script>
+
+</html>
