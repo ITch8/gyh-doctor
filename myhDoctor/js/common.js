@@ -1,5 +1,5 @@
 var nodataHtmlInfo = "<div class='noContent'><div class='mui-icon iconfont icon-comiiszanwushuju'></div><div>暫無數據</div></div>";
-var ASKURL = "https://api.du-ms.com/";
+var ASKURL = "https://api.hk-dr.com/";
 var token = '85FBCA0D01D6EB76A3888C5F8E4118D5';
 (function(w, _, u, owner) {
 	w.openView = function(url, extras, aniShow, autoShow) {
