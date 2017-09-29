@@ -71,8 +71,10 @@ var token = '85FBCA0D01D6EB76A3888C5F8E4118D5';
 				success: function(data) {
 					data = JSON.parse(data);
 					data = JSON.stringify(data);
+					console.log("befor======="+data);
 					data = traditionalized(data);
 					data = JSON.parse(data);
+					console.log("after======="+JSON.stringify(data))
 					plus.nativeUI.closeWaiting();
 					_.isFunction(success) ? success(data) : ''
 				},

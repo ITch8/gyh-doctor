@@ -181,19 +181,19 @@
 			//连续双击退出系统
 			w.doubleTapExit();
 			
-			//需要传递当前的版本
+			//需要传递当前的版本 
 			function checkUpdate(wgtVer){
 			    u.mypost("api/checkVersion",{clientVersion:wgtVer,pos:2},false,function(data){
 			    	plus.nativeUI.closeWaiting();
 	                if(parseInt(data.code) == 0){      
 	                    //可以升级
 	                    var lastVer = data.data.version || '1.0.0';
-			        	wgtVer = wgtVer && wgtVer.substring(0,wgtVer.indexOf('.'));
-			        	lastVer = lastVer && lastVer.substring(0,lastVer.indexOf('.'));
+			        	wgtVer = wgtVer && wgtVer.substring(0,wgtVer.lastIndexOf('.'));
+			        	lastVer = lastVer && lastVer.substring(0,lastVer.lastIndexOf('.'));
 			        	if(Number(lastVer) > Number(wgtVer)){//如果最新的大版本号较大 需要整包升级
 			        		plus.nativeUI.confirm("檢查到當前版本有更新，下載最新安裝包？",
 			                function(event){
-			                    if(event.index ==0){
+			                    if(event.index == 0){
 			                    	plus.runtime.openURL('http://a.app.qq.com/o/simple.jsp?pkgname=io.dcloud.H567DF429',function(err){})
 			                    }                        
 			                } ,'系统消息',['馬上下載','下次再說']); 
