@@ -13,11 +13,9 @@
 			.mui-bar.mui-bar-tab .mui-tab-item.mui-active {
 				color: #32A3D6;
 			}
-			
 			.mui-bar.mui-bar-tab {
 				font-size: 22px;
 			}
-			
 			.mui-loader {
 				position: absolute;
 				top: 25%;
@@ -35,8 +33,12 @@
 			<span class="mui-icon iconfont icon-index"></span>
 			<span class="mui-tab-label">首頁</span>
 			</span>
+			<span class="mui-tab-item" id='goMedical' href="medicine_center/medicine_center.html">
+			<i class="mui-icon iconfont  icon-doctor"></i>
+			<span class="mui-tab-label">藥品</span>
+			</span>
 			<span class="mui-tab-item" id='goClinic' href="myclinic/clinic.html">
-			<span class="mui-icon iconfont icon-doctor"></span>
+			<span class="mui-icon iconfont icon-contract"></span>
 			<span class="mui-tab-label">問診</span>
 			</span>
 			<span class="mui-tab-item" id='goInfo' href="mynews/news.html">
@@ -54,7 +56,7 @@
 	<script type="text/javascript" charset="utf-8">
 		(function(_, w, doc) {
 			_.init({swipeBack: false});
-			var subpages = ['mymain/main.html', 'myclinic/clinic.html', 'mynews/news.html', 'mycenter/mine.html'];
+			var subpages = ['mymain/main.html','medicine_center/medicine_center.html',  'myclinic/clinic.html', 'mynews/news.html', 'mycenter/mine.html'];
 			var aniShow = {};
 			var topoffset = '0px';
 			if(!mui.os.android) { //整体滑动暂不支持android手机，因为两个页面的移动动画，無法保证同步性；
@@ -71,7 +73,7 @@
 			function createSubpages() {
 				var self = plus.webview.currentWebview();
 				var bottom = '50px';
-				for(var i = 0; i < 4; i++) {
+				for(var i = 0; i < 5; i++) {
 					var temp = {};
 					var sub = plus.webview.create(subpages[i], subpages[i], {
 						top: topoffset,

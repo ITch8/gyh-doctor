@@ -172,4 +172,19 @@
 	font-size: 12px
 }
 
-.mui-btn{color: #33A2D7;border: 1px solid #33A2D7;}
+.mui-btn {
+	color: #33A2D7;
+	border: 1px solid #33A2D7
+}
+
+#calendar {
+	width: 100%
+}
+
+.clearfix {
+	margin-bottom: 10px !important;
+}
+
+select {
+	width: auto !important;
+}

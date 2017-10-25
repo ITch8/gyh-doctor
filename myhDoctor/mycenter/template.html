@@ -79,8 +79,6 @@
 				self.hide('auto');
 				self.children()[0].evalJS("document.activeElement.blur()");//隐藏虚拟键盘
 				setTimeout(function() {
-//					titleElem.className = 'mui-title mui-fadeout';
-//					titleElem.innerText = '';
 					if(contentWebview==null){
 						contentWebview = self.children()[0];
 					}
@@ -92,7 +90,6 @@
 				var href = e.detail.target;
 				var aniShow = e.detail.aniShow;
 				var headerSty = e.detail.headerSty;
-//				titleElem.className = "mui-title mui-fadein";
 				titleElem.innerHTML = title;
 				setTimeout(function (){
 					self.show(aniShow);

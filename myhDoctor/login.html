@@ -141,7 +141,6 @@
 							w.setUser(privateToken);
 							sessionStorage.setItem("loginFlag","1");
 							accountObj.value = "";
-							passwordObj.value ="";
 							toMain();
 						}
 					}, myerror);
@@ -194,16 +193,16 @@
 			        		plus.nativeUI.confirm("檢查到當前版本有更新，下載最新安裝包？",
 			                function(event){
 			                    if(event.index == 0){
-			                    	plus.runtime.openURL('http://a.app.qq.com/o/simple.jsp?pkgname=io.dcloud.H567DF429',function(err){})
+			                    	plus.runtime.openURL('http://a.app.qq.com/o/simple.jsp?pkgname=io.dcloud.H571B10EF',function(err){})
 			                    }                        
-			                } ,'系统消息',['馬上下載','下次再說']); 
+			                } ,'系统消息',['立刻下載']); 
 			        	}else{
 			        		plus.nativeUI.confirm("检查到当前版本有更新，在线升级？",
 			                function(event){
 			                    if(event.index ==0){
 			                        downWgt(data.data.downloadURL); //下载更新版的地址
 			                    }                        
-			                } ,'系统消息',['馬上升級','下次再說']); 
+			                } ,'系统消息',['立刻升級']); 
 			        	}
 	                }
 			    },function(){

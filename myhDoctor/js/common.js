@@ -71,10 +71,9 @@ var token = '85FBCA0D01D6EB76A3888C5F8E4118D5';
 				success: function(data) {
 					data = JSON.parse(data);
 					data = JSON.stringify(data);
-					console.log("befor======="+data);
 					data = traditionalized(data);
 					data = JSON.parse(data);
-					console.log("after======="+JSON.stringify(data))
+					console.log("data======"+JSON.stringify(data));
 					plus.nativeUI.closeWaiting();
 					_.isFunction(success) ? success(data) : ''
 				},
@@ -208,7 +207,7 @@ var token = '85FBCA0D01D6EB76A3888C5F8E4118D5';
 	};
 	w.toIndex = function(i) {
 		var i = i || 0;
-		var idArr = ["gohome", "goClinic", "goInfo", "goMycenter"];
+		var idArr = ["gohome", "goMedical", "goClinic", "goInfo", "goMycenter"];
 		var main = plus.webview.getWebviewById("index");
 		mui.fire(main, 'goIndex', {
 			id: idArr[i]
@@ -264,6 +263,7 @@ var token = '85FBCA0D01D6EB76A3888C5F8E4118D5';
 	};
 	u.goLogin = function(){
 		mui.toast("登錄身份過期，請重新登錄");
+		w.removeItem('privateToken');
 		mui.later(function(){
 			w.openView("../login.html");
 		},500)
@@ -342,3 +342,29 @@ function checkNet() {
 	    }
 	    return str;
 	}
+	
+/**
+ * 原始js封装方法
+ * **/
+function hasClass(obj, cls) {
+	return obj.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
+}
+
+function addClass(obj, cls) {
+	if(!this.hasClass(obj, cls)) obj.className += " " + cls;
+}
+
+function removeClass(obj, cls) {
+	if(hasClass(obj, cls)) {
+		var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
+		obj.className = obj.className.replace(reg, ' ');
+	}
+}
+
+function toggleClass(obj, cls) {
+	if(hasClass(obj, cls)) {
+		removeClass(obj, cls);
+	} else {
+		addClass(obj, cls);
+	}
+}

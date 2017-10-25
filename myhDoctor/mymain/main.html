@@ -8,6 +8,8 @@
 		<meta name="format-detection" content="telephone=no">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
 		<link href="../css/mui.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="../stylesheets/stylesheet.css" />
+		<link rel="stylesheet" type="text/css" href="../stylesheets/simple-calendar.css">
 		<link rel="stylesheet" href="../css/common.css" />
 		<link rel="stylesheet" href="../css/imagePreview.css" />
 		<link rel="stylesheet" type="text/css" href="../css/pullRefresh.css" />
@@ -29,6 +31,11 @@
 					</div>
 					<div id="indicator" class="mui-slider-indicator"></div>
 				</div>
+				<p class="undo">查看預約訂單</p>
+					<div id="content-wrapper">
+					<div class="inner clearfix">
+						<div id='calendar'></div>
+					</div>
 				<p class="undo">排隊管理<button  id="next" class="mui-pull-right mui-btn mui-btn">保存</button></p>
 				<div class="line-manage">
 					<h5 class="mui-content-padded">當前排隊人數</h5>
@@ -54,6 +61,7 @@
 	<script type="text/javascript" src="../js/mui.previewimage.js"></script>
 	<script type="text/javascript" src="../js/mui.pullToRefresh.min.js"></script>
 	<script type="text/javascript" src="../js/mui.pullToRefresh.material.min.js"></script>
+	<script type="text/javascript" src="../javascripts/simple-calendar.js" ></script>
 	<script type="text/javascript" src="../js/common.js"></script>
 	<script type="text/javascript" src="../js/jscomon.js"></script>
 	<script type="text/javascript">
@@ -70,6 +78,9 @@
 			loopObj = document.getElementById("loop"),
 			indicatorObj = document.getElementById("indicator");
 		var lineCountObj = document.getElementById("lineCount"),estimatedTimeObj = document.getElementById("estimatedTime");
+		var calendarObj =  document.getElementById("calendar");
+		//初始化日历
+		var myCalendar = new SimpleCalendar('#calendar');
 		(function(_, doc, u, w) {
 			_.init({
 				swipeBack: false,
@@ -214,6 +225,17 @@
 						}
 					}
 				});
+				
+//				//点击日历中某日事件
+				_("#calendar").on("tap",".sc-item",function(){
+					var pre = calendarObj.querySelector('.sc-selected');
+			        if (pre) pre.classList.remove('sc-selected');
+			        this.classList.add('sc-selected');
+					console.log("sc-item==="+this.querySelector(".day").innerHTML);
+					console.log("sc-item==="+doc.getElementById("select-year").value);
+					console.log("sc-item==="+doc.getElementById("select-month").value);
+					w.openView('orders.html');
+				})
 
 				//信息点击事件
 				doc.getElementById("msg").addEventListener("tap", function() {

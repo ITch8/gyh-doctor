@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>预约挂号订单</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<link rel="stylesheet" href="../css/common.css" />
+		<link rel="stylesheet" href="../css/imagePreview.css" />
+		<link rel="stylesheet" href="../css/iconfont-state.css" />
+		<link rel="stylesheet" href="../css/pullRefresh.css" />
+		<link rel="stylesheet" href="../css/orders.css" />
+	</head>
+	<body>
+		<header class="header mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">预约挂号订单</h1>
+		</header>
+		<div id="mui-scroll-wrapper" class="mui-content mui-scroll-wrapper mui-fullscreen">
+			<div id="book" class="mui-slider">
+				<div id="tab-book" class="mui-slider-indicator mui-segmented-control mui-segmented-control-inverted">
+					<a attrid="1" class="mui-control-item mui-active" href="#book-unfinished"><span>未完成</span></a>
+					<a attrid="2" class="mui-control-item" href="#book-finished"><span>已完成</span></a>
+				</div>
+				<div class="mui-slider-group">
+					<div id="book-unfinished" class="mui-slider-item mui-control-content mui-active">
+						<ul id="book-unfinished-ul" class="mui-table-view"</ul>
+					</div>
+					<div id="book-finished" class="mui-slider-item mui-control-content">
+						<ul id='book-finished-ul' class="mui-table-view"></ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../js/mui.min.js"></script>
+	<script type="text/javascript" src="../js/mui.zoom.js" ></script>
+	<script type="text/javascript" src="../js/mui.previewimage.js" ></script>
+	<script type="text/javascript" src="../js/mui.pullToRefresh.min.js" ></script>
+	<script type="text/javascript" src="../js/mui.pullToRefresh.material.min.js" ></script>
+	<script type="text/javascript" src="../js/common.js" ></script>
+	<script>
+		var  privateToken = null;
+		var book_finished_ulObj=null,book_unfinished_ulObj=null;
+		(function(_,doc,w,u){
+			_.init({swipeBack:false}),_(".mui-scroll-wrapper").scroll(),_.previewImage();
+			book_finished_ulObj = doc.getElementById("book-finished-ul");
+			book_unfinished_ulObj =  doc.getElementById("book-unfinished-ul");
+			var undoState = 1,doneState = 2;
+			var pdata = {
+				limit:500
+			};
+			//获取留言问答未完成数据
+			_.plusReady(function(){
+				privateToken = w.getUser();
+				if(privateToken){
+					pdata.privateToken = privateToken;
+					getRegList(1);
+				}
+				//监听預約的未完成和完成的切换
+				doc.getElementById("book").addEventListener("slide",function(e){
+					getRegList(e.detail.slideNumber+1);
+				})
+			});
+			
+			/**
+			 * @description 获取預約挂号数据
+			 * @state 状态值  1未完成  2已完成
+			 */
+			function getRegList(state){
+				pdata.state = state;
+				pdata.privateToken = w.getUser();
+				u.mypost('doctor_center/getRegList',pdata, true, function(data) {
+					if (data.code == 0 || data.code == 1) {
+						renderRegList(data.data[0] || [],state);
+					}else{
+						_.toast(data.msg || '服務器異常');
+					}
+				}, function() {
+					_.toast('獲取列表失敗');
+				});
+			}
+			
+			
+			/**
+			 * @description 列举預約挂号数据
+			 * @param data 列表数据
+			 * @param state 状态值
+			 */
+			function renderRegList(data,state){
+				var dataObj = null,iconclass= '';
+				if(state == 1){
+					dataObj = book_unfinished_ulObj;
+					iconclass ='<span class="mui-icon iconfont icon-jian"></span>';
+				}else{
+					dataObj = book_finished_ulObj;
+					iconclass ='<span class="mui-icon iconfont icon-fangxuanzhong"></span>'
+				}
+				if(data && data.length > 0 && data[0]){
+					u.emptyHtml(dataObj);
+					var item = null;
+					_.each(data,function(i,o){
+						item = doc.createElement("li");
+						item.id = o.id;
+						item.className = "mui-table-view-cell case-list";
+						item.innerHTML = ""+iconclass +
+								"<span class='case-title'>"+(o.username || '無')+"的預約挂号</span>"+
+								"<span class='case-detail-sex'>&emsp;&emsp;&emsp;性別:"+(o.sex || '無')+" &emsp;&emsp;年齡:"+(o.age || '無')+"</span>"+
+								"<div class='case-detail mui-row'>"+
+									"<label class='mui-col-xs-3'>預約人:</label><span class='mui-col-xs-9'>"+(o.contacts || '無')+"</span>"+
+									"<label class='mui-col-xs-3'>手機號:</label><span class='mui-col-xs-9'>"+(o.appointTel || '無')+"</span>"+
+									"<label class='mui-col-xs-3'>預約時間:</label><span class='mui-col-xs-9'>"+(o.appointTime || '無')+"</span>"+
+								"</div>";
+						dataObj.appendChild(item);
+					})
+				}else{
+					dataObj.innerHTML = nodataHtmlInfo;
+				}
+			}
+//			//預約挂号詳情页面
+			_(doc).on("tap", ".mui-table-view-cell", function() {
+				var extras = {
+					id: this.id
+				};
+				w.openView("../myclinic/bookDetail.html", extras);
+			})
+	})(mui, document, window,util)
+	</script>
+</html>

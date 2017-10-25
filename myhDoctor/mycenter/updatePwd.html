@@ -9,33 +9,7 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
 		<link href="../css/mui.min.css" rel="stylesheet" />
 		<link rel="stylesheet" href="../css/common.css" />
-		<style>
-			.mui-input-group .mui-input-row:after {
-				left: 0;
-			}
-			.mui-scroll {
-				width: 86%;
-				margin: 0 7%;
-			}
-			.mui-input-group {
-				margin: 30px 0 15px 0;
-			}
-			.mui-input-group input,
-			.mui-input-group .mui-input-row {
-				height: 50px;
-			    padding: 0 20px 0 0;
-			}
-			.mui-input-group:before {
-				height: 0;
-			}
-			.mui-icon.mui-icon-clear {
-				top: 14px !important;
-			}
-			.mui-row {
-				color: #999;
-				font-size: 14px;
-			}
-		</style>
+		<link rel="stylesheet" href="../css/center/updatePwd.css" />
 	</head>
 	<body>
 		<div class="mui-content mui-fullscreen mui-scroll-wrapper main-body-white">
@@ -133,7 +107,7 @@
 						}else if(data.code == 4){
 							_.toast("第壹次密碼跟第二次密碼不壹致");
 						}else if(data.code == 5){
-							_.toast("新密碼和舊密碼壹洋未作修改");
+							_.toast("新密碼和舊密碼未作修改");
 						}else if(data.code == -1){
 							_.toast("系統錯誤");
 						}
