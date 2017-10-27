@@ -29,7 +29,7 @@
 						<label class="mui-col-xs-3">預約人:</label><span id="contacts" class="mui-col-xs-9">-</span>
 						<label class="mui-col-xs-3">過敏史:</label><span id="allergyHistory" class="mui-col-xs-9">-</span>
 						<label class="mui-col-xs-3">診斷:</label><span id="result" class="mui-col-xs-9">-</span>
-						<label class="mui-col-xs-3">分期:</label><span id="stages" class="mui-col-xs-9">-</span>
+						<label id="stageslabel" class="mui-col-xs-3">分期:</label><span id="stages" class="mui-col-xs-9">-</span>
 						<label class="mui-col-xs-3">手機號:</label><span id='appointTel' class="mui-col-xs-9">-</span>
 						<label class="mui-col-xs-3">基本病情:</label>
 						<span class="mui-col-xs-9">
@@ -41,8 +41,7 @@
 				</div>
 				<div class="divider"></div>
 				<p class="clinicRecord">就診記錄</p>
-				<div id="det" class="cont view-item" >
-				</div>
+				<div id="det" class="cont view-item"></div>
 			</div>
 		</div>
 	</body>
@@ -55,7 +54,7 @@
 			_.init(),_(".mui-scroll-wrapper").scroll(),_.previewImage();
 			var id = null,content=null,pdata ={};
 			var detObj = doc.getElementById("det"),titleObj = doc.getElementById("title"),sexObj = doc.getElementById("sex"),ageObj =doc.getElementById("age");
-			var contactsObj =doc.getElementById("contacts"),allergyHistoryObj =doc.getElementById("allergyHistory"),stagesObj =doc.getElementById("stages"),appointTelObj = doc.getElementById("appointTel");
+			var contactsObj =doc.getElementById("contacts"),allergyHistoryObj =doc.getElementById("allergyHistory"),stagesObj =doc.getElementById("stages"),stageslabelObj = document.getElementById("stageslabel"),appointTelObj = doc.getElementById("appointTel");
 			var appointTimeObj =doc.getElementById("appointTime"),situationObj = doc.getElementById("situation"),userRemarkObj = doc.getElementById("userRemark");
 			w.addEventListener("event",function(e){
 				_('#mui-scroll-wrapper').scroll().scrollTo(0,0);
@@ -72,7 +71,10 @@
 						ageObj.innerHTML = detail.age ||'無';
 						contactsObj.innerHTML = detail.contacts ||'無';
 						doc.getElementById('result').innerHTML = detail.result || '無';
-						if("0" == detail.stages){
+						if("" == detail.stages || null == detail.stages){
+							addClass(stagesObj,"mui-hidden");
+							addClass(stageslabelObj,"mui-hidden");
+						}else if("0" == detail.stages){
 							stagesObj.innerHTML = '無';
 						}else if("1" == detail.stages){
 							stagesObj.innerHTML = 'Ⅰ期';
@@ -119,8 +121,7 @@
 								item.innerHTML = "<img src='"+src+"' class='pic' />"+
 											"<span class='mui-ellipsis'>"+(o.visitDate || '')+"</span><span class='status'>"+(o.stage || '')+"</span>"+
 											"<p class='mui-ellipsis'>"+(o.content || '')+"</p>"+
-											"<div class='record-img'>"+imgHtml+
-											"</div>";
+											"<div class='record-img'>"+imgHtml+"</div>";
 								detObj.appendChild(item);
 							});
 						}else{

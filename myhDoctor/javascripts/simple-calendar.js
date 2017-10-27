@@ -225,14 +225,13 @@ var SimpleCalendar = function () {
       showFestival: true, //节日
       showLunarFestival: true, //农历节日
       showSolarTerm: false, //节气
-      showMark: true, //标记
+      showMark: false, //标记
       timeRange: {
         startYear: 2017,
-        endYear: 2049
+        endYear: 2017
       },
       timeZone: "", //时区
       mark: {
-        '2016-5-5': '上学'
       },
       theme: {
         changeAble: false,
@@ -293,10 +292,10 @@ var SimpleCalendar = function () {
       var header = root.querySelector('.sc-header');
       var scbody = root.querySelector('.sc-body');
       //actions
-      header.innerHTML = header.innerHTML + '<div class="sc-actions">' + '      <div class="sc-yleft">' + '        &lsaquo;</div>' + '      <select id="select-year" class="sc-select-year" name="">' + '      </select>' + '      <div class="sc-yright">&rsaquo;</div>' + '  </div>';
-      header.innerHTML = header.innerHTML + '<div class="sc-actions">' + '    <div class="sc-mleft">' + '      &lsaquo;</div>' + '    <select id="select-month" class="sc-select-month" name="">' + '    </select>' + '    <div class="sc-mright">&rsaquo;</div>' + '</div>';
+      header.innerHTML = header.innerHTML + '<div class="sc-actions">' + '<select id="select-year" class="sc-select-year" name="">' + '      </select>' + '<span style="font-size:13px">年</span>' + '  </div>';
+      header.innerHTML = header.innerHTML + '<div class="sc-actions">' + '    <div class="sc-mleft">' + '      &lsaquo;</div>' + '    <select id="select-month" class="sc-select-month selectMonth" name="">' + '    </select>' + '    <div class="sc-mright">&rsaquo;</div>' + '</div>';
       header.innerHTML = header.innerHTML + '<div class="sc-actions"><span class="sc-return-today ">返回今天</span></div>';
-      header.innerHTML = header.innerHTML + '<div class="sc-actions"><span class="sc-time"></span></div>';
+//    header.innerHTML = header.innerHTML + '<div class="sc-actions"><span class="sc-time"></span></div>';
       scbody.innerHTML = ' <div class="sc-week"> </div> <div class="sc-days"> </div>';
       var week = scbody.querySelector('.sc-week');
       var days = scbody.querySelector('.sc-days');
@@ -633,23 +632,23 @@ var SimpleCalendar = function () {
         calendar.update(m, y);
       };
 
-      var yearadd = container.querySelector('.sc-yright');
-      var yearsub = container.querySelector('.sc-yleft');
+//    var yearadd = container.querySelector('.sc-yright');
+//    var yearsub = container.querySelector('.sc-yleft');
       var monthadd = container.querySelector('.sc-mright');
       var monthsub = container.querySelector('.sc-mleft');
 
-      yearadd.onclick = function () {
-        var currentyear = selectYear.value;
-        if (currentyear < 2099) currentyear++;
-        selectYear.value = currentyear;
-        calendar.update(this.tmonth, currentyear);
-      };
-      yearsub.onclick = function () {
-        var currentyear = selectYear.value;
-        if (currentyear > 1900) currentyear--;
-        selectYear.value = currentyear;
-        calendar.update(this.tmonth, currentyear);
-      };
+//    yearadd.onclick = function () {
+//      var currentyear = selectYear.value;
+//      if (currentyear < 2099) currentyear++;
+//      selectYear.value = currentyear;
+//      calendar.update(this.tmonth, currentyear);
+//    };
+//    yearsub.onclick = function () {
+//      var currentyear = selectYear.value;
+//      if (currentyear > 1900) currentyear--;
+//      selectYear.value = currentyear;
+//      calendar.update(this.tmonth, currentyear);
+//    };
       monthadd.onclick = function () {
         var currentmonth = selectMonth.value;
         var currentyear = selectYear.value;
@@ -805,45 +804,50 @@ SimpleCalendar.timeupdate = function () {
 //国际化，和一些节日数据，标记数据
 SimpleCalendar.prototype.languageData = {
   feativals_CH: {
-    '1-1': '元旦',
-    '1-2': '休',
-    '4-22': '地球日',
+    '1-2': '元旦',
+    '1-28': '休',
+    '1-30': '休',
+    '1-31': '休',
+    '4-4': '清明节',
+    '4-14': '受难节',
+    '4-15': '受难节',
+    '4-17': '复活节',
     '5-1': '劳动节',
-    '5-4': '青年节',
-    '6-1': '儿童节',
-    '7-1': '建党节',
-    '8-1': '建军节',
-    '9-10': '教师节',
-    '10-1': '国庆节',
-    '10-2': '休',
-    '12-25': '圣诞节'
+    '5-3': '佛诞',
+    '5-30': '端午节',
+    '7-1': '纪念日',
+    '10-2': '国庆日',
+    '10-5': '中秋节',
+    '10-28': '重阳节',
+    '12-25': '圣诞节',
+    '12-26': '休'
   },
   feativals_EN: {
-    '1-1': "new year’s day",
-    '2-14': "Saint Valentine's Day",
-    '3-8': 'international women’s day',
-    '3-12': "Arbor Day",
-    '4-1': "April Fool's Day",
-    '4-22': "Earth Day",
-    '5-1': "international labour day",
-    '5-4': "Chinese Youth Day",
-    '6-1': "Children's Day",
-    '7-1': "The party's Day",
-    '8-1': "the Army's Day",
-    '9-10': "Teachers' Day",
-    '10-1': 'National Day',
-    '12-25': 'Christmas Day'
+//  '1-1': "new year’s day",
+//  '2-14': "Saint Valentine's Day",
+//  '3-8': 'international women’s day',
+//  '3-12': "Arbor Day",
+//  '4-1': "April Fool's Day",
+//  '4-22': "Earth Day",
+//  '5-1': "international labour day",
+//  '5-4': "Chinese Youth Day",
+//  '6-1': "Children's Day",
+//  '7-1': "The party's Day",
+//  '8-1': "the Army's Day",
+//  '9-10': "Teachers' Day",
+//  '10-1': 'National Day',
+//  '12-25': 'Christmas Day'
   },
   lunarFeatival_CH: {
-    '1-1': '春节',
-    '2-2': '龙抬头',
-    '1-15': '元宵节',
-    '4-4': '寒食节',
-    '4-5': '清明节',
-    '5-5': '端午节',
-    '8-15': '中秋节',
-    '9-9': '重阳节',
-    '12-30': '除夕'
+//  '1-1': '春节',
+//  '2-2': '龙抬头',
+//  '1-15': '元宵节',
+//  '4-4': '寒食节',
+//  '4-5': '清明节',
+//  '5-5': '端午节',
+//  '8-15': '中秋节',
+//  '9-9': '重阳节',
+//  '12-30': '除夕'
   },
   //节气
   solarTerm: {
@@ -878,7 +882,7 @@ SimpleCalendar.prototype.languageData = {
   months_EN: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
   months_CH: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
   vocation: {
-    data_2016: ['1-1', '1-2', '1-3', '2-7', '2-8', '2-9', '2-10', '2-11', '2-12', '2-13', '4-2', '4-3', '4-4', '4-30', '5-1', '5-2', '6-9', '6-10', '6-11', '9-15', '9-16', '9-17',, '10-1', '10-2', '10-3', '10-4', '10-5', '10-6', '10-7']
+    data_2017: ['1-2', '1-28','1-30','1-31', '4-4', '4-14', '4-15', '4-17', '5-1', '5-3', '5-30', '7-1', '10-2', '10-5', '10-28', '12-25', '12-26']
   }
 };
 
