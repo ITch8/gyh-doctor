@@ -36,21 +36,6 @@
 					<div class="inner clearfix">
 						<div id='calendar'></div>
 					</div>
-				<p class="undo">排隊管理<button  id="next" class="mui-pull-right mui-btn mui-btn">保存</button></p>
-				<div class="line-manage">
-					<h5 class="mui-content-padded">當前排隊人數</h5>
-					<div class="mui-numbox" data-numbox-min='1'>
-						<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
-						<input id="lineCount" class="mui-input-numbox" type="number" />
-						<button class="mui-btn mui-btn-numbox-plus" type="button">+</button>
-					</div>
-					<h5 class="mui-content-padded">人均排隊時間(分鐘)</h5>
-					<div class="mui-numbox" data-numbox-step='5' data-numbox-min='0'>
-						<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
-						<input id="estimatedTime" class="mui-input-numbox" type="number"/>
-						<button class="mui-btn mui-btn-numbox-plus" type="button">+</button>
-					</div>
-				</div>
 				<p class="undo">待處理問題</p>
 				<ul id="order-list" class="mui-table-view"></ul>
 			</div>
@@ -79,7 +64,6 @@
 			indicatorObj = document.getElementById("indicator");
 		var lineCountObj = document.getElementById("lineCount"),estimatedTimeObj = document.getElementById("estimatedTime");
 		var calendarObj =  document.getElementById("calendar");
-		//初始化日历
 		var myCalendar = new SimpleCalendar('#calendar');
 		(function(_, doc, u, w) {
 			_.init({
@@ -130,9 +114,9 @@
 									u.emptyHtml(indicatorObj);
 									var len = bannerList.length;
 									var indicatorItem = null;
-									loopObj.innerHTML = "<div class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[len - 1].img + "'></div>";
+									loopObj.innerHTML = "<div id='" + bannerList[0].nid + "' class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[len - 1].img + "'></div>";
 									mui.each(bannerList, function(i, o) {
-										indicatorItem = document.createElement("div")
+										indicatorItem = document.createElement("div");
 										loopObj.innerHTML += "<div id='" + o.nid + "' class='mui-slider-item'> <img src='" + imgServer + o.img + "'></div>";
 										if(0 == i) {
 											indicatorItem.className = "mui-indicator mui-active";
@@ -141,7 +125,7 @@
 										}
 										indicatorObj.appendChild(indicatorItem);
 									})
-									loopObj.innerHTML += "<div class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[0].img + "'></div>";
+									loopObj.innerHTML += "<div id='" + bannerList[0].nid + "' class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[0].img + "'></div>";
 								}
 								var bodyWidth = document.body.clientWidth;
 								document.getElementById("slider").querySelector("img").setAttribute("height",bodyWidth && bodyWidth/2.5);
@@ -231,10 +215,17 @@
 					var pre = calendarObj.querySelector('.sc-selected');
 			        if (pre) pre.classList.remove('sc-selected');
 			        this.classList.add('sc-selected');
-					console.log("sc-item==="+this.querySelector(".day").innerHTML);
-					console.log("sc-item==="+doc.getElementById("select-year").value);
-					console.log("sc-item==="+doc.getElementById("select-month").value);
-					w.openView('orders.html');
+			        var year = doc.getElementById("select-year").value;
+			        var month = doc.getElementById("select-month").value;
+			        var day = this.querySelector(".day").innerHTML;
+			        if(Number(month || 0) < 10){
+			        	month = "0" + month;
+			        }
+			        if(Number(day || 0) < 10){
+			        	day = "0" + day;
+			        }
+			        var time  = year + '-' + month + '-' + day;
+					w.openView('orders.html',{time:time});
 				})
 
 				//信息点击事件
@@ -258,15 +249,15 @@
 				});
 				//留言问答回復
 				_(doc).on("tap", ".mui-btn-mini", function(e) {
-						var extras = {
-							id: this.id
-						};
-						if(this.innerHTML == '重新回復') {
-							extras.flag = 1;
-						}
-						w.openView("infoaskDetail", extras);
-						e.stopPropagation();
-					})
+					var extras = {
+						id: this.id
+					};
+					if(this.innerHTML == '重新回復') {
+						extras.flag = 1;
+					}
+					w.openView("infoaskDetail", extras);
+					e.stopPropagation();
+				})
 					//进入留言问答页面
 				_(doc).on("tap", ".ask", function() {
 						var extras = {
@@ -306,22 +297,6 @@
 				})
 			});
 			w.doubleTapExit(); //连续两次点返回键 退出系统
-			
-			document.getElementById("next").addEventListener("tap",function(){
-				var pdata = {
-					privateToken:w.getUser(),
-					lineCount:lineCountObj.value,
-					estimatedTime:estimatedTimeObj.value
-				}
-				util.mypost("doctor_center/docLineEdit",pdata,true,function(data){
-					if(data.code == 0){
-						_.toast( data.msg || "")
-					}else if(data.code == -1){
-						util.goLogin();
-					}
-				},myerror)
-			})
-			
 		})(mui, document, util, window)
 
 		/**
@@ -357,7 +332,7 @@
 					var indicatorItem = null;
 					util.emptyHtml(loopObj) //清空轮播图数据
 					util.emptyHtml(indicatorObj);
-					loopObj.innerHTML = "<div class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[len - 1].img + "'></div>";
+					loopObj.innerHTML = "<div id='" + bannerList[0].nid + "' class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[len - 1].img + "'></div>";
 					mui.each(bannerList, function(i, o) {
 						indicatorItem = document.createElement("div");
 						loopObj.innerHTML += "<div id='" + o.nid + "' class='mui-slider-item'><img src='" + imgServer + o.img + "'></div>";
@@ -368,7 +343,7 @@
 						}
 						indicatorObj.appendChild(indicatorItem);
 					})
-					loopObj.innerHTML += "<div class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[0].img + "'></div>";
+					loopObj.innerHTML += "<div id='" + bannerList[0].nid + "' class='mui-slider-item mui-slider-item-duplicate'><img src='" + imgServer + bannerList[0].img + "'></div>";
 				}
 				var bodyWidth = document.body.clientWidth;
 				document.getElementById("slider").querySelector("img").setAttribute("height",bodyWidth && bodyWidth/15*7);
@@ -441,18 +416,6 @@
 					interval: 2000
 				});
 			}, myerror);
-			
-			//获取當前排隊人數和人均排队时间
-			mui.later(function(){
-				util.mypost("doctor_center/docInfo", {privateToken:window.getUser()}, false, function(data) {
-					if(data.code == 0){
-						lineCountObj.value = data.data.info[0].lineCount ||0;
-						estimatedTimeObj.value = data.data.info[0].estimatedTime || 0;
-					}else if(data.code == "500") {
-						util.goLogin();
-					}
-				}, myerror);
-			},500)
 		}
 		
 		/**

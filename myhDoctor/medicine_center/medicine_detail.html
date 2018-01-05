@@ -6,7 +6,7 @@
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="format-detection" content="telephone=no">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
-		<title>药品詳情</title>
+		<title>藥品詳情</title>
 		<link rel="stylesheet" href="../css/mui.min.css" />
     	<link rel="stylesheet" href="../css/common.css" />
     	<link rel="stylesheet" href="../css/detail.css" />
@@ -15,7 +15,8 @@
 	<body>
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<h1 class="mui-title">药品詳情</h1>
+			<h1 class="mui-title">藥品詳情</h1>
+			<a id="telTo" class="mui-icon mui-icon-phone mui-pull-right"></a>
 		</header>
 		<div class="mui-content mui-fullscreen mui-scroll-wrapper">
 			<div class="mui-scroll">
@@ -34,14 +35,15 @@
 			_.init({swipeBack:false}),_(".mui-scroll-wrapper").scroll();
 			var pdata = {};
 			var sliderObj = doc.getElementById("slider"),bannerObj = doc.getElementById("banner");
+			var contacts = null,contactNumber = null;
 			_.plusReady(function(){
 				mid = plus.webview.currentWebview().mid;
 				pdata.mid = mid;
-				u.mypost("medicine/medicineDetail",pdata,true,function(data){
+				u.mypost("medicine/encyclopediaDetail",pdata,true,function(data){
 					var arrBanner = new Array(),imgserver = null,bannerList = null;
 					bannerObj.innerHTML = "";
 					imgserver = data.data.imgServer;
-					bannerList = data.data.detail.banner;
+					bannerList = data.data.detail.banner || [];
 					if(bannerList){
 						if(bannerList.banner_1){
 							arrBanner.push(bannerList.banner_1);
@@ -73,13 +75,29 @@
 					}
 					_(sliderObj).slider({interval: 3000});
 					var bodyWidth = document.body.clientWidth;
-					doc.getElementsByClassName("mui-slider-item")[0].querySelector("img").setAttribute("height",bodyWidth && bodyWidth/15*7);
+					doc.getElementsByClassName("mui-slider-item")[0] && doc.getElementsByClassName("mui-slider-item")[0].querySelector("img").setAttribute("height",bodyWidth && bodyWidth/15*7);
 					if(data.code == 0){
 						detailData = data.data.detail;
 						doc.getElementById("medicineName").innerHTML = detailData.name?detailData.name:'';
 						doc.getElementById("medicineDetail").innerHTML = detailData.content?detailData.content:nodataHtmlInfo;
+						contacts = detailData.contacts || '无名称';
+						contactNumber = detailData.contactNumber || '';
 					}
 				},myerror);
+				
+				//致电
+				doc.getElementById("telTo").addEventListener('tap',function(){
+					if(!contactNumber){
+						_.alert('暫無聯繫人');
+					}else{
+						var btnArray = ['致電', '取消'];
+						_.confirm(contactNumber, '<div class="btn-title">'+contacts+'</div>',btnArray, function(e) {
+							if(e.index == 0){
+								plus.device.dial(tel, false);
+							}
+						},'div');
+					}
+				})
 			})
 		})(mui,document,util,window)
 	</script>

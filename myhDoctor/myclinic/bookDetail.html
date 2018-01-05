@@ -12,6 +12,15 @@
 		<link rel="stylesheet" href="../css/imagePreview.css" />
 		<link rel="stylesheet" href="../css/detail_common.css" />
 		<link rel="stylesheet" href="../css/book_detail.css" />
+		<style>
+			.case-detail2{
+			    border-top: 0;
+			    padding: 10px 0;
+			    margin: 10px 0 0;
+			    font-size: 12px;
+			    color: #666666;
+			}
+		</style>
 	</head>
 	<body>
 		<header class="header mui-bar mui-bar-nav">
@@ -22,22 +31,26 @@
 			<div class="mui-scroll">
 				<div class="case-list">
 					<div class="mui-row detail">
-						<span class="case-title mui-col-xs-6"><span id="title"></span>的預約挂号</span>
-						<span class="case-detail-sex mui-col-xs-6">性別:<span id="sex">-</span>&ensp;年齡:<span id='age'>-</span></span>
+						<span class="case-title mui-col-xs-6"><span id="title"></span></span>
+						<span class="case-detail-sex mui-col-xs-6">性別:<span id="sex">-</span>&ensp;&ensp;年齡:<span id='age'>-</span></span>
 					</div>
 					<div class="case-detail mui-row">
 						<label class="mui-col-xs-3">預約人:</label><span id="contacts" class="mui-col-xs-9">-</span>
-						<label class="mui-col-xs-3">過敏史:</label><span id="allergyHistory" class="mui-col-xs-9">-</span>
-						<label class="mui-col-xs-3">診斷:</label><span id="result" class="mui-col-xs-9">-</span>
-						<label id="stageslabel" class="mui-col-xs-3">分期:</label><span id="stages" class="mui-col-xs-9">-</span>
 						<label class="mui-col-xs-3">手機號:</label><span id='appointTel' class="mui-col-xs-9">-</span>
-						<label class="mui-col-xs-3">基本病情:</label>
-						<span class="mui-col-xs-9">
-							<div id="situation">-</div>
-						</span>
 						<label class="mui-col-xs-3">預約時間:</label><span class="mui-col-xs-9" id="appointTime">-</span>
-						<label class="mui-col-xs-3">備註:</label><span id='userRemark' class="mui-col-xs-9">-</span>
 					</div>
+				</div>
+				<div class="divider"></div>
+				<p class="clinicRecord">病历信息</p>
+				<div class="case-detail2 mui-row">
+					<label class="mui-col-xs-3">過敏史:</label><span id="allergyHistory" class="mui-col-xs-9">-</span>
+					<label class="mui-col-xs-3">診斷:</label><span id="result" class="mui-col-xs-9">-</span>
+					<label id="stageslabel" class="mui-col-xs-3">分期:</label><span id="stages" class="mui-col-xs-9">-</span>
+					<label class="mui-col-xs-3">基本病情:</label>
+					<span class="mui-col-xs-9">
+						<div id="situation">-</div>
+					</span>
+					<label class="mui-col-xs-3">備註:</label><span id='userRemark' class="mui-col-xs-9">-</span>
 				</div>
 				<div class="divider"></div>
 				<p class="clinicRecord">就診記錄</p>
@@ -62,13 +75,14 @@
 				pdata.id = id;
 				pdata.privateToken = w.getUser();
 				u.mypost("doctor_center/getRegNumDetail",pdata,true,function(data){
+					console.log("data======"+JSON.stringify(data));
 					if(data.code == 0){
 						data = data.data;
 						var imgServer = data.imgServer;
 						var detail = data.detail;
 						titleObj.innerHTML = detail.username ||'無';
 						sexObj.innerHTML = detail.sex ||'無';
-						ageObj.innerHTML = detail.age ||'無';
+						ageObj.innerHTML = detail.age ||'0';
 						contactsObj.innerHTML = detail.contacts ||'無';
 						doc.getElementById('result').innerHTML = detail.result || '無';
 						if("" == detail.stages || null == detail.stages){

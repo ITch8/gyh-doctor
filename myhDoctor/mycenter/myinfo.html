@@ -15,7 +15,6 @@
 		<link rel="stylesheet" href="../css/common.css" />
 		<link rel="stylesheet" href="../css/center/myinfo.css" />
 	</head>
-
 	<body>
 		<header id="header" class="header mui-bar mui-bar-nav">
 			<a id="back" class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
@@ -292,7 +291,7 @@
 						});
 						task.addData('privateToken', privateToken);
 						task.addData('token', token);
-						task.addData('name', nicknameObj.value);
+						task.addData('name', simplized(nicknameObj.value));//转为简体
 						task.addData('sex', sexVal);
 						task.addData('birthday', birthdayObj.value);
 						task.addData('telFrt', phoneFObj.value);

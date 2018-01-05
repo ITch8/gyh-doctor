@@ -81,7 +81,7 @@
 				loginObj = doc.getElementById("login");
 			var msg = null,
 				title = "提示",
-				btns = ["取消","确 认"];
+				btns = ["取消","確認"];
 			_.plusReady(function() {
 				//首頁关闭ios右划
 				plus.webview.currentWebview().setStyle({
@@ -183,7 +183,7 @@
 			function checkUpdate(wgtVer){
 			    u.mypost("api/checkVersion",{clientVersion:wgtVer,pos:2},false,function(data){
 			    	plus.nativeUI.closeWaiting();
-	                if(parseInt(data.code) == 0){      
+	                if(parseInt(data.code) == 0){
 	                    //可以升级
 	                    var lastVer = data.data.version || '1.0.0';
 			        	wgtVer = wgtVer && wgtVer.substring(0,wgtVer.lastIndexOf('.'));

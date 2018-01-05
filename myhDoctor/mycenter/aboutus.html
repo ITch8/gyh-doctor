@@ -11,17 +11,18 @@
 	<body>
 		<div class="mui-content" >
 			<div class="mui-text-center">
-				<img class="logo" src="../imgs/logo-copyright.png">
+				<img class="logo" src="../imgs/logo.png">
 			</div>
 			<h2>公司間介</h2>
 			<div class="about">港醫匯依托於香港各大醫院診所等境內外的豐富醫療資源，為廣大用戶提供最新最全的行業資訊和咨詢服務，打造國內最專註&最接地氣的本港醫療平臺。</div>
 			<div class="contact_us">
 				<h2>聯系方式</h2>
 				<p>客服電話：400-930-6288</p>
+				<div class="website">Copyright &copy; 2017~2018 香港精準醫療控股有限公司</div>
 			</div>
-			<h2>合作醫院</h2>
+			<!--<h2>合作醫院</h2>
 			<div class="cooperation" id="hospitalList"></div>
-			<div class="website">copyright &copy; 2017 香港精準醫療控股有限公司</div>
+			<div class="website">copyright &copy; 2017 香港精準醫療控股有限公司</div>-->
 		</div>
 	</body>
 	<script src="../js/mui.min.js"></script>
@@ -31,17 +32,17 @@
 			var pdata = {},div = null,aboutData = null,description = null;
 			var list = doc.getElementById("hospitalList");
 			_.plusReady(function(){
-				u.mypost("us/aboutUs",pdata,true,function(data){
-					if(data.code == 0){
-						aboutData = data.data.us[0];
-						description = aboutData.description?aboutData.description:'';
-						_.each(data.data.hospital,function(i,obj){
-							div = doc.createElement("div");
-							div.innerHTML = "<p class='mui-text-center'>"+obj.hospitalNames+"</p>";
-							list.appendChild(div);
-						})
-					}
-				},myerror);
+//				u.mypost("us/aboutUs",pdata,true,function(data){
+//					if(data.code == 0){
+//						aboutData = data.data.us[0];
+//						description = aboutData.description?aboutData.description:'';
+//						_.each(data.data.hospital,function(i,obj){
+//							div = doc.createElement("div");
+//							div.innerHTML = "<p class='mui-text-center'>"+obj.hospitalNames+"</p>";
+//							list.appendChild(div);
+//						})
+//					}
+//				},myerror);
 			});
 		})(mui,document,util)
 	</script>

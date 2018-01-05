@@ -23,15 +23,15 @@
 }
 
 .sc-header {
-	height: 35px;
+	height: 45px;
 	border-bottom: 0
 }
 
 
 .selectMonth{
-	    position: relative;
+    position: relative;
     bottom: 2px;
-    left: 5px;
+    /*left: 5px;*/
 }
 
 .sc-body {
@@ -115,7 +115,7 @@
 .sc-today {
 	background-color: #32A3D6;
 	color: white;
-	border: 1px solid #32A3D6
+	border-color: #32A3D6; 
 }
 
 .sc-item .day {
@@ -168,7 +168,7 @@
 .sc-actions {
 	float: left;
 	width: 25%;
-	padding: 5px;
+    padding: 8px 5px;
 	height: 100%;
 	box-sizing: border-box
 }
@@ -195,7 +195,6 @@
 	appearance: none;
 	font-family: "Microsoft Yahei";
 	color: #606060;
-	font-size: 13px
 }
 
 .sc-header input {
@@ -213,8 +212,8 @@
 	vertical-align: bottom;
 	width: 12px;
 	padding-bottom: 5px;
-	font-size: 1.5em;
-	line-height: 0.9em
+	font-size: 30px;
+	    line-height: 27px;
 }
 
 .sc-return-today {
@@ -224,7 +223,7 @@
 	border-radius: 2px;
 	width: 60px;
 	font-size: 0.7em;
-	padding: 0.3em;
+	padding: 0.5em 0.3em;
 	margin: auto
 }
 

@@ -16,7 +16,6 @@ var LunarHelp = function () {
     this.nStr2 = new Array('初', '十', '廿', '三');
 
     var date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-
     var i,
         leap = 0,
         temp = 0; //天数
@@ -27,11 +26,9 @@ var LunarHelp = function () {
     for (i = 1900; i < 2050 && offset - this.lYearDays(i) > 0; i++) {
       offset -= this.lYearDays(i);
     }
-
     this.year = i;
     leap = this.leapMonth(i); //闰哪个月
-    this.isLeap = false;
-
+    this.isLeap = false; 
     //计算月数
     for (i = 1; i < 13 && offset > 0; i++) {
       //闰月
@@ -60,7 +57,6 @@ var LunarHelp = function () {
       offset += temp;
       --i;
     }
-
     this.month = i;
     //最后剩余的就是日期
     this.day = offset + 1;
@@ -175,7 +171,7 @@ var LunarHelp = function () {
         default:
           break;
       }
-      return s;
+      return '初一';
     }
 
     //获得阴历日期 字符串
@@ -223,12 +219,12 @@ var SimpleCalendar = function () {
       showLunarCalendar: true, //阴历
       showHoliday: true, //休假
       showFestival: true, //节日
-      showLunarFestival: true, //农历节日
+      showLunarFestival: false, //农历节日
       showSolarTerm: false, //节气
       showMark: false, //标记
       timeRange: {
         startYear: 2017,
-        endYear: 2017
+        endYear: 2018
       },
       timeZone: "", //时区
       mark: {
@@ -292,9 +288,9 @@ var SimpleCalendar = function () {
       var header = root.querySelector('.sc-header');
       var scbody = root.querySelector('.sc-body');
       //actions
-      header.innerHTML = header.innerHTML + '<div class="sc-actions">' + '<select id="select-year" class="sc-select-year" name="">' + '      </select>' + '<span style="font-size:13px">年</span>' + '  </div>';
-      header.innerHTML = header.innerHTML + '<div class="sc-actions">' + '    <div class="sc-mleft">' + '      &lsaquo;</div>' + '    <select id="select-month" class="sc-select-month selectMonth" name="">' + '    </select>' + '    <div class="sc-mright">&rsaquo;</div>' + '</div>';
-      header.innerHTML = header.innerHTML + '<div class="sc-actions"><span class="sc-return-today ">返回今天</span></div>';
+      header.innerHTML = header.innerHTML + '<div class="sc-actions">' + '<select id="select-year" class="sc-select-year" name="">' + '</select>' + '<span>年</span>' + ' </div>';
+      header.innerHTML = header.innerHTML + '<div class="sc-actions">' + '<div id="sc-mleft" class="sc-mleft" style="padding-right: 18px;">' + '&lsaquo;</div>' + '<select id="select-month" class="sc-select-month selectMonth" name="">' + '</select>' + '<div id="sc-mright" class="sc-mright" style="padding-left: 12px;">&rsaquo;</div>' + '</div>';
+      header.innerHTML = header.innerHTML + '<div class="sc-actions"><span id="sc-return-today" class="sc-return-today ">返回今天</span></div>';
 //    header.innerHTML = header.innerHTML + '<div class="sc-actions"><span class="sc-time"></span></div>';
       scbody.innerHTML = ' <div class="sc-week"> </div> <div class="sc-days"> </div>';
       var week = scbody.querySelector('.sc-week');
@@ -311,11 +307,55 @@ var SimpleCalendar = function () {
       this.update();
       //时间刷新
       self.setInterval('SimpleCalendar.timeupdate()', 200);
+      
+      //设置监听
+      this.regClickEvent();
     }
 
-    //刷新日历
+    //注册监听 月份加减  lic  20171204ADD  解决Android/iOS手机onclick事件无效
+  },{
+    key: 'regClickEvent',
+    value: function regClickEvent() {
+    	var calendar = this;
+      var selectYear = document.getElementById('select-year');
+      var selectMonth = document.getElementById('select-month');
+		  var monthadd = document.getElementById('sc-mright');
+      var monthsub = document.getElementById('sc-mleft');
+      monthadd.addEventListener('tap',function(){
+        var currentmonth = selectMonth.value;
+        var currentyear = selectYear.value;
+        if (currentmonth < 12) currentmonth++;else {
+          currentmonth = 1;
+          if(2018 > currentyear){
+    				selectYear.value = ++currentyear;
+    			}
+        };
+        selectMonth.value = currentmonth;
+        calendar.update(currentmonth, currentyear);
+      });
+      
+      monthsub.addEventListener('tap',function(){
+      	var currentmonth = selectMonth.value;
+        var currentyear = selectYear.value;
+        	if (currentmonth > 1) currentmonth--;else {
+             currentmonth = 12;
+              if(2017 < currentyear){
+        				selectYear.value = --currentyear;
+        			}
+          }
+        selectMonth.value = currentmonth;
+        calendar.update(currentmonth, currentyear);
+      });
 
-  }, {
+      var returntoday = document.getElementById('sc-return-today');
+      returntoday.addEventListener('tap',function(){
+        selectYear.value = calendar.tyear;
+        selectMonth.value = calendar.tmonth;
+        calendar.update();
+      });
+    }
+    //调整大小
+  },{
     key: 'update',
     value: function update() {
       var month = arguments.length <= 0 || arguments[0] === undefined ? this.tmonth : arguments[0];
@@ -442,7 +482,7 @@ var SimpleCalendar = function () {
         daysElement[i].querySelector('.day').innerHTML = writeday;
         //判断是否添加阴历
         if (this._options.showLunarCalendar) {
-          daysElement[i].querySelector('.lunar-day').innerHTML = new LunarHelp(writeyear, writemonth, writeday).getLunarDayName();
+          daysElement[i].querySelector('.lunar-day').innerHTML = new LunarHelp(writeyear, writemonth, writeday + 2).getLunarDayName();
         } else {
           daysElement[i].querySelector('.lunar-day').innerHTML = '';
           daysElement[i].classList.add('item-nolunar');
@@ -548,7 +588,7 @@ var SimpleCalendar = function () {
             var day = +v.querySelector('.day').innerHTML;
             if (day == 1) currentmonth++;
             //国际节日
-            if (data.indexOf(currentmonth + '-' + day) > 0) {
+            if (data.indexOf(currentmonth + '-' + day) > 0 || (1 == month && i == 0 && data[i] == '1-1') ) {
               v.classList.add('sc-vocation');
             }
           });
@@ -630,51 +670,6 @@ var SimpleCalendar = function () {
         var y = selectYear.value;
         var m = this.value;
         calendar.update(m, y);
-      };
-
-//    var yearadd = container.querySelector('.sc-yright');
-//    var yearsub = container.querySelector('.sc-yleft');
-      var monthadd = container.querySelector('.sc-mright');
-      var monthsub = container.querySelector('.sc-mleft');
-
-//    yearadd.onclick = function () {
-//      var currentyear = selectYear.value;
-//      if (currentyear < 2099) currentyear++;
-//      selectYear.value = currentyear;
-//      calendar.update(this.tmonth, currentyear);
-//    };
-//    yearsub.onclick = function () {
-//      var currentyear = selectYear.value;
-//      if (currentyear > 1900) currentyear--;
-//      selectYear.value = currentyear;
-//      calendar.update(this.tmonth, currentyear);
-//    };
-      monthadd.onclick = function () {
-        var currentmonth = selectMonth.value;
-        var currentyear = selectYear.value;
-        if (currentmonth < 12) currentmonth++;else {
-          currentmonth = 1;
-          selectYear.value = ++currentyear;
-        };
-        selectMonth.value = currentmonth;
-        calendar.update(currentmonth, currentyear);
-      };
-      monthsub.onclick = function () {
-        var currentmonth = selectMonth.value;
-        var currentyear = selectYear.value;
-        if (currentmonth > 1) currentmonth--;else {
-          currentmonth = 12;
-          selectYear.value = --currentyear;
-        }
-        selectMonth.value = currentmonth;
-        calendar.update(currentmonth, currentyear);
-      };
-
-      var returntoday = container.querySelector('.sc-return-today');
-      returntoday.onclick = function () {
-        selectYear.value = calendar.tyear;
-        selectMonth.value = calendar.tmonth;
-        calendar.update();
       };
     }
 
@@ -804,22 +799,22 @@ SimpleCalendar.timeupdate = function () {
 //国际化，和一些节日数据，标记数据
 SimpleCalendar.prototype.languageData = {
   feativals_CH: {
-    '1-2': '元旦',
-    '1-28': '休',
-    '1-30': '休',
-    '1-31': '休',
-    '4-4': '清明节',
-    '4-14': '受难节',
-    '4-15': '受难节',
-    '4-17': '复活节',
-    '5-1': '劳动节',
-    '5-3': '佛诞',
-    '5-30': '端午节',
-    '7-1': '纪念日',
-    '10-2': '国庆日',
-    '10-5': '中秋节',
-    '10-28': '重阳节',
-    '12-25': '圣诞节',
+    '1-1': '元旦',
+    '2-16': '農曆年',
+    '2-17': '農曆年',
+    '2-19': '農曆年',
+    '3-30': '受難節',
+    '3-31': '受難節',
+    '4-2': '復活節',
+    '4-5': '清明節',
+    '5-1': '勞動節',
+    '5-22': '佛誕',
+    '6-18': '端午節',
+    '7-2': '紀念日',
+    '9-25': '中秋節',
+    '10-1': '國慶日',
+    '10-17': '重陽節',
+    '12-25': '聖誕節',
     '12-26': '休'
   },
   feativals_EN: {
@@ -880,9 +875,11 @@ SimpleCalendar.prototype.languageData = {
   days_EN: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
   days_CH: ["一", "二", "三", "四", "五", "六", "日"],
   months_EN: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-  months_CH: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+  months_CH: ["一月份", "二月份", "三月份", "四月份", "五月份", "六月份", "七月份", "八月份", "九月份", "十月份", "十一月", "十二月"],
   vocation: {
-    data_2017: ['1-2', '1-28','1-30','1-31', '4-4', '4-14', '4-15', '4-17', '5-1', '5-3', '5-30', '7-1', '10-2', '10-5', '10-28', '12-25', '12-26']
+  	data_2016: ['1-1', '2-8','2-9','2-10', '3-25', '3-26', '3-28', '4-4', '5-2', '5-14', '6-9', '7-1', '9-16', '10-1', '10-10', '12-26', '12-27'],
+    data_2017: ['1-2', '1-28','1-30','1-31', '4-4', '4-14', '4-15', '4-17', '5-1', '5-3', '5-30', '7-1', '10-2', '10-5', '10-28', '12-25', '12-26'],
+    data_2018: ['1-1', '2-16','2-17','2-19', '3-30', '3-31', '4-2', '4-5', '5-1', '5-22', '6-18', '7-2', '9-25', '10-1', '10-17', '12-25', '12-26']
   }
 };
 

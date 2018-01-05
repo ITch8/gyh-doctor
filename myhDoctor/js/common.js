@@ -73,12 +73,10 @@ var token = '85FBCA0D01D6EB76A3888C5F8E4118D5';
 					data = JSON.stringify(data);
 					data = traditionalized(data);
 					data = JSON.parse(data);
-					console.log("data======"+JSON.stringify(data));
 					plus.nativeUI.closeWaiting();
 					_.isFunction(success) ? success(data) : ''
 				},
 				error: function(xhr) {
-					console.log(JSON.stringify(xhr));
 					plus.nativeUI.closeWaiting();
 					_.isFunction(error) ? error() : _.toast('网络连接超时')
 				}
@@ -219,7 +217,7 @@ var token = '85FBCA0D01D6EB76A3888C5F8E4118D5';
 		_.back = function() {
 			++backButtonPress > 1 ? u.exitApp() : _.toast('再按壹次退出應用');
 			setTimeout(function() {
-				backButtonPress = 0
+				backButtonPress = 0;
 			}, 1000)
 		}
 	};

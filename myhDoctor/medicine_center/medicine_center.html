@@ -12,6 +12,21 @@
 		<link rel="stylesheet" href="../css/pullRefresh.css" />
 		<link rel="stylesheet" href="../css/base.css" />
 		<link rel="stylesheet" href="../css/medicine/medicine_center.css" />
+		<style>
+			/**
+			 * 原价格
+			 * */
+			.price-de{
+				text-decoration: line-through;
+				margin: 0 10px 0 0;color: #8f8f94;
+			}
+			#medicineList .mui-table-view-cell p{
+				margin: 3px 0 0 0;
+			}
+			#medicineList .mui-media-body{
+				font-size: 16px;
+			}
+		</style>
 	</head>
 	<body>
 		<header class="mui-bar mui-bar-nav">
@@ -24,7 +39,7 @@
 				</div>
 			</form>
 			<dl class="retrie">
-				<dt><a id="area"><span id="areaTitle" class="font-size-18">全部癌種</span><i class="up-nav"></i></a></dt>
+				<dt><a id="area"><span id="areaTitle" class="font-size-18">全部科室</span><i class="up-nav"></i></a></dt>
 				<dd id="dCategory" class="area mui-hidden">
 					<ul id="category" class="downlist"></ul>
 				</dd>
@@ -59,7 +74,7 @@
 				addClass(dCategoryObj,"mui-hidden");
 			})
 			
-			//选择癌种-获取药品
+			//选择癌种-获取藥品
 			_("#category").on("tap","li",function(){
 				var pls = this.parentNode.children;
 				for (var i = 0; i < pls.length; i++) {
@@ -80,7 +95,7 @@
 					up: {
 						callback: function() {
 							pdata.offset=(pdata.limit)*page;
-							u.mypost('medicine/medicineList',pdata, false, function(data) {
+							u.mypost('medicine/encyclopediaList',pdata, false, function(data) {
 								_pull.endPullUpToRefresh((data.data.medicine || []).length < pdata.limit);
 								if (data.code  == 0) {
 									page++;
@@ -95,19 +110,26 @@
 					}
 				});
 			})
-			//赋值药品列表和癌种列表
+			//赋值藥品列表和癌种列表
 			function medicineListData(data){
+				var priceDeHtml = "";
 				imgserver = data.imgServer;
 				_pull && _pull.refresh((data.medicine || []).length == pdata.limit);
 				_pull && _pull.endPullUpToRefresh((data.medicine || []).length < pdata.limit);
-				//药品列表
+				//藥品列表
 				_.each(data.medicine || [],function(i,obj){
 					li = doc.createElement("li");
 					li.id = obj.mid;
 					var img = obj.thumbnail == ""?"../images/default-news.png":imgserver+obj.thumbnail;
 					li.className = "mui-table-view-cell mui-media";
+					if(obj.discountPrice == null || Number(obj.discountPrice ) == 0){
+						priceDeHtml = "HKD "+obj.price;
+					}else{
+						priceDeHtml = "<span class='price-de'>HKD "+obj.price+"</span>HKD "+obj.discountPrice; 
+					}
 					li.innerHTML = "<img class='mui-media-object mui-pull-left' src='"+img+"'>"+
-									"<div class='mui-media-body font-color-333'>"+obj.medicineName+"</div><div class='mui-media-body font-size-12 font-color-666'>"+(obj.outline || '')+"</div>";
+								"<div class='mui-media-body mui-ellipsis'>"+obj.medicineName+"</div>"+
+								"<div class='mui-media-body font-size-12'><p class='mui-ellipsis'>"+obj.manufacturer+"</p><p class='main-font-color'>"+priceDeHtml+"</p></div>";
 					medicineList.appendChild(li);
 				})
 				//癌种列表
@@ -124,7 +146,7 @@
 			function getMedData() {
 				pdata.keyword = simplized(keywordPro.value);
 				pdata.offset = 0;
-				u.mypost('medicine/medicineList', pdata, true, function(data) {
+				u.mypost('medicine/encyclopediaList', pdata, true, function(data) {
 					if(data.code == 0) {
 						u.emptyHtml(medicineList),medicineListData(data.data || []);
 					} else {
@@ -135,7 +157,7 @@
 				});
 			}
 			
-			//根据关键字搜索药品
+			//根据关键字搜索藥品
 			keywordPro.addEventListener('keypress',function(e){
 				if(e.keyCode == "13"){
 					doc.activeElement.blur();
@@ -143,7 +165,7 @@
 					e.preventDefault();// 阻止默认事件
 				}
 			})
-			//药品詳情
+			//藥品詳情
 			_('.mui-table-view').on('tap','li',function(){
 				w.openView("medicine_detail.html",{mid:this.id});
 			})

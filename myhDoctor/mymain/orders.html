@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>预约挂号订单</title>
+		<title>預約掛號訂單</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -16,7 +16,7 @@
 	<body>
 		<header class="header mui-bar mui-bar-nav">
 			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
-			<h1 class="mui-title">预约挂号订单</h1>
+			<h1 class="mui-title">預約掛號訂單</h1>
 		</header>
 		<div class="mui-content mui-fullscreen mui-scroll-wrapper">
 			<div id="bookdiv" class="mui-scroll">
@@ -31,7 +31,7 @@
 	<script>
 		(function(_,doc,w,u){
 			_.init(),_(".mui-scroll-wrapper").scroll();
-			bookObj = doc.getElementById("book");
+			var time = null,bookObj = doc.getElementById("book");
 			var pdata = {
 				offset: 0,
 				limit:5,
@@ -40,6 +40,8 @@
 			//获取留言问答未完成数据
 			_.plusReady(function(){
 				pdata.privateToken = w.getUser();
+				time = plus.webview.currentWebview().time;
+				pdata.time = time;
 				_pull = _('#bookdiv').pullToRefresh({
 					down: {
 						callback: function() {
@@ -60,6 +62,7 @@
 					up: {
 						callback: function() {
 							pdata.offset = (pdata.limit) * page;
+							pdata.time = time;
 							u.mypost('doctor_center/getRegList', pdata, false, function(data) {
 								_pull.endPullUpToRefresh((data.data[0] || []).length < 5);
 								if(data.code == 0 || data.code == 1) {
@@ -83,17 +86,39 @@
 			 */
 			function renderRegList(data){
 				if(data && data.length > 0 && data[0]){
-					var item = null;
+					var item = null,status = '待支付';
 					_.each(data,function(i,o){
 						item = doc.createElement("li");
 						item.id = o.id;
 						item.className = "mui-table-view-cell case-list";
-						item.innerHTML = "<span class='case-title'>"+(o.username || '無')+"的預約挂号</span>"+
-								"<span class='case-detail-sex'>&emsp;&emsp;&emsp;性別:"+(o.sex || '無')+" &emsp;&emsp;年齡:"+(o.age || '無')+"</span>"+
+						switch (Number(o.status || 0)){
+							case 1:
+							 status = '待支付'
+								break;
+							case 2:
+							 status = '已支付待處理'
+								break;
+							case 3:
+							 status = '預約成功'
+								break;
+							case 4:
+							 status = '預約失敗'
+								break;
+							case 5:
+							 status = '完成'
+								break;
+							case 6:
+							 status = '用戶取消'
+								break;
+							default:
+								break;
+						}
+						item.innerHTML = "<span class='case-title'>"+(o.contacts || '無')+"</span>"+
+								"<span class='case-detail-sex'>性別:"+(o.sex || '無')+" &emsp;&emsp;年齡:"+(o.age || '0')+"</span>"+
 								"<div class='case-detail mui-row'>"+
-									"<label class='mui-col-xs-3'>預約人:</label><span class='mui-col-xs-9'>"+(o.contacts || '無')+"</span>"+
 									"<label class='mui-col-xs-3'>手機號:</label><span class='mui-col-xs-9'>"+(o.appointTel || '無')+"</span>"+
 									"<label class='mui-col-xs-3'>預約時間:</label><span class='mui-col-xs-9'>"+(o.appointTime || '無')+"</span>"+
+									"<label class='mui-col-xs-3'>订单状态:</label><span class='mui-col-xs-9 color-m'>"+status+"</span>"+
 								"</div>";
 						bookObj.appendChild(item);
 					})
